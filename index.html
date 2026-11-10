@@ -12,6 +12,9 @@
     <meta name="apple-mobile-web-app-title" content="حسابتك وحياتك">
     <link rel="apple-touch-icon" href="https://img.icons8.com/gold/180/wallet.png">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
@@ -69,71 +72,44 @@
             padding-bottom: 90px;
         }
 
-        /* --- Lock Screen & Auth --- */
-        .auth-overlay {
+        /* --- Welcome / First Time Setup Overlay --- */
+        .welcome-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 10, 10, 0.96);
-            backdrop-filter: blur(15px);
+            background: rgba(10, 10, 10, 0.98);
             z-index: 2000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
         }
 
-        .auth-card {
+        .welcome-card {
             width: 100%;
-            max-width: 360px;
+            max-width: 380px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 24px;
+            padding: 28px;
             text-align: center;
             box-shadow: var(--shadow);
         }
 
-        .auth-logo {
-            width: 70px;
-            height: 70px;
+        .welcome-logo {
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
             background: var(--gold-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 32px;
+            margin: 0 auto 18px;
+            font-size: 34px;
             color: #000;
-        }
-
-        .pin-inputs {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 20px 0;
-            direction: ltr;
-        }
-
-        .pin-input {
-            width: 45px;
-            height: 55px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            background: var(--bg-input);
-            color: var(--gold-primary);
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .pin-input:focus {
-            outline: none;
-            border-color: var(--gold-primary);
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
 
         /* Header */
@@ -550,48 +526,27 @@
         .empty-state { text-align: center; padding: 30px 10px; color: var(--text-muted); }
         .empty-state i { font-size: 36px; color: var(--border-color); margin-bottom: 8px; }
     </style>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="Gemini_Generated_Image_a4ogfla4ogfla4og.jpeg">
 </head>
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js');
-    });
-  }
-    </script>
 <body>
 
     <div class="app-container">
         
-        <!-- LOCK OVERLAY -->
-        <div id="authOverlay" class="auth-overlay">
-            <div class="auth-card">
-                <div class="auth-logo">
+        <!-- WELCOME / FIRST TIME SETUP OVERLAY -->
+        <div id="welcomeOverlay" class="welcome-overlay" style="display: none;">
+            <div class="welcome-card">
+                <div class="welcome-logo">
                     <i class="fa-solid fa-store"></i>
                 </div>
-                <h2 id="authTitle" style="margin-bottom: 6px; font-size: 20px;">حسابتك وحياتك</h2>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">أدخل رمز PIN للدخول إلى حسابك</p>
+                <h2 style="margin-bottom: 6px; font-size: 20px; color: var(--gold-primary);">أهلاً بك في حسابتك وحياتك</h2>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">نظّم فلوسك، محلك، وحياتك بكل سهولة</p>
 
                 <div class="form-group" style="text-align: right;">
-                    <label>اختر الحساب:</label>
-                    <select id="userSelect" class="form-control" onchange="onUserSelectChange()"></select>
+                    <label>ما هو اسمك الكريم؟</label>
+                    <input type="text" id="setupName" class="form-control" placeholder="مثال: مصطفى ياسر">
                 </div>
-
-                <div class="pin-inputs">
-                    <input type="password" maxlength="1" class="pin-input" id="pin1" autofocus>
-                    <input type="password" maxlength="1" class="pin-input" id="pin2">
-                    <input type="password" maxlength="1" class="pin-input" id="pin3">
-                    <input type="password" maxlength="1" class="pin-input" id="pin4">
-                </div>
-
-                <button class="btn btn-gold" onclick="verifyPin()" style="margin-top: 10px;">
-                    <i class="fa-solid fa-lock-open"></i> فتح الحساب
+                <button class="btn btn-gold" onclick="completeFirstSetup()" style="margin-top: 10px;">
+                    <i class="fa-solid fa-arrow-left"></i> ابدأ الاستخدام فوراً
                 </button>
-
-                <p onclick="showCreateUserModal()" style="font-size: 12px; color: var(--gold-primary); margin-top: 16px; cursor: pointer;">
-                    + إنشاء حساب جديد
-                </p>
             </div>
         </div>
 
@@ -600,12 +555,12 @@
             <div class="user-profile-summary">
                 <div class="user-avatar" id="headerAvatar">م</div>
                 <div class="user-greeting">
-                    <h3 id="headerUserName">مصطفى ياسر</h3>
+                    <h3 id="headerUserName">مستخدم جديد</h3>
                     <p id="headerDate">المحل والمالية والشخصية</p>
                 </div>
             </div>
             <div class="header-actions">
-                <button class="icon-btn" onclick="lockApp()"><i class="fa-solid fa-lock"></i></button>
+                <button class="icon-btn" onclick="openSwitchAccount()" title="تبديل أو إضافة مستخدم"><i class="fa-solid fa-user-plus"></i></button>
             </div>
         </header>
 
@@ -662,14 +617,13 @@
                 </div>
             </section>
 
-            <!-- 2. STORE & INVENTORY VIEW (جديد لأصحاب المحلات) -->
+            <!-- 2. STORE & INVENTORY VIEW -->
             <section id="view-store" class="view-section">
                 <div class="section-header">
-                    <h3><i class="fa-solid fa-store"></i> إدار المحل والبضاعة والربح</h3>
+                    <h3><i class="fa-solid fa-store"></i> إدارة المحل والبضاعة والربح</h3>
                     <button class="icon-btn" onclick="openModal('modalProduct')"><i class="fa-solid fa-plus"></i></button>
                 </div>
 
-                <!-- Store Metrics Card -->
                 <div class="balance-card" style="background: linear-gradient(145deg, #191c24, #12141a);">
                     <p class="balance-title">إجمالي أرباح المبيعات المحققة</p>
                     <h2 class="balance-amount" style="color: var(--success);" id="storeTotalProfit">0.00 ج.م</h2>
@@ -689,7 +643,6 @@
                     </div>
                 </div>
 
-                <!-- Products Lists -->
                 <div class="section-header">
                     <h3>قائمة البضاعة والمنتجات</h3>
                 </div>
@@ -732,18 +685,18 @@
                 </div>
             </section>
 
-            <!-- 5. PROFILE & SETTINGS VIEW -->
+            <!-- 5. PROFILE VIEW -->
             <section id="view-profile" class="view-section">
                 <div class="section-header">
                     <h3><i class="fa-solid fa-user-gear"></i> إعدادات الحساب</h3>
                 </div>
                 <div class="card" style="text-align: center; padding: 20px;">
-                    <h3 id="profileName">مصطفى ياسر</h3>
+                    <h3 id="profileName">مستخدم جديد</h3>
                     <p style="font-size: 12px; color: var(--gold-primary);">تطبيق مجاني 100%</p>
                 </div>
                 <div class="card">
-                    <div class="list-item" onclick="lockApp()" style="cursor: pointer;">
-                        <span style="color: var(--danger);"><i class="fa-solid fa-arrow-right-from-bracket"></i> قفل التطبيق الخروج</span>
+                    <div class="list-item" onclick="openSwitchAccount()" style="cursor: pointer;">
+                        <span><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد / التبديل</span>
                     </div>
                 </div>
             </section>
@@ -775,7 +728,7 @@
             </div>
         </nav>
 
-        <!-- MODAL: ADD PRODUCT (أصحاب المحلات) -->
+        <!-- MODAL: ADD PRODUCT -->
         <div id="modalProduct" class="modal-overlay">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -784,10 +737,10 @@
                 </div>
                 <div class="form-group">
                     <label>اسم المنتج / السلعة</label>
-                    <input type="text" id="prodName" class="form-control" placeholder="مثال: قميص رجالي، موبايل...">
+                    <input type="text" id="prodName" class="form-control" placeholder="مثال: قميص، سلعة...">
                 </div>
                 <div class="form-group">
-                    <label>سعر الجملة / الشراء (التكلفة عليك)</label>
+                    <label>سعر الشراء (التكلفة)</label>
                     <input type="number" id="prodCost" class="form-control" placeholder="0.00">
                 </div>
                 <div class="form-group">
@@ -795,10 +748,10 @@
                     <input type="number" id="prodPrice" class="form-control" placeholder="0.00">
                 </div>
                 <div class="form-group">
-                    <label>الكمية المتاحة (عدد القطع)</label>
+                    <label>الكمية المتاحة (قطع)</label>
                     <input type="number" id="prodQty" class="form-control" placeholder="10">
                 </div>
-                <button class="btn btn-gold" onclick="saveProduct()">حفظ المنتج في المحل</button>
+                <button class="btn btn-gold" onclick="saveProduct()">حفظ المنتج</button>
             </div>
         </div>
 
@@ -816,7 +769,7 @@
                 <div class="form-group">
                     <label>التصنيف</label>
                     <select id="expCategory" class="form-control">
-                        <option value="بضاعة ومحل">🏪 إيجار أو مصروفات محل</option>
+                        <option value="بضاعة ومحل">🏪 إيجار ومصروفات محل</option>
                         <option value="طعام وشراء">🍔 طعام</option>
                         <option value="مواصلات">🚕 مواصلات</option>
                         <option value="فواتير واشتراكات">🧾 فواتير</option>
@@ -838,7 +791,7 @@
         <div id="modalIncome" class="modal-overlay">
             <div class="modal-sheet">
                 <div class="modal-header">
-                    <h3>إضافة دخل</h3>
+                    <h3>إضافة دخل / مرتب</h3>
                     <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal('modalIncome')"></i>
                 </div>
                 <div class="form-group">
@@ -847,366 +800,30 @@
                 </div>
                 <div class="form-group">
                     <label>المصدر</label>
-                    <input type="text" id="incCategory" class="form-control" placeholder="مرتب، أرباح محل...">
+                    <input type="text" id="incCategory" class="form-control" placeholder="مرتب، أرباح...">
                 </div>
                 <button class="btn btn-gold" onclick="saveIncome()">إضافة</button>
             </div>
         </div>
 
-        <!-- MODAL: CREATE USER -->
-        <div id="modalCreateUser" class="modal-overlay">
+        <!-- MODAL: ADD TASK -->
+        <div id="modalTask" class="modal-overlay">
             <div class="modal-sheet">
                 <div class="modal-header">
-                    <h3>إنشاء حساب جديد</h3>
-                    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal('modalCreateUser')"></i>
+                    <h3>إضافة مهمة جديدة</h3>
+                    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal('modalTask')"></i>
                 </div>
                 <div class="form-group">
-                    <label>اسم المستخدم</label>
-                    <input type="text" id="newUserName" class="form-control" placeholder="اسمك...">
+                    <label>عنوان المهمة</label>
+                    <input type="text" id="taskTitle" class="form-control" placeholder="مثال: شراء بضاعة جديدة...">
                 </div>
-                <div class="form-group">
-                    <label>رمز PIN مكون من 4 أرقام</label>
-                    <input type="password" id="newUserPin" maxlength="4" class="form-control" placeholder="****">
-                </div>
-                <button class="btn btn-gold" onclick="createNewUser()">إنشاء الحساب</button>
+                <button class="btn btn-gold" onclick="saveTask()">إضافة المهمة</button>
             </div>
         </div>
 
     </div>
 
-    <!-- SCRIPT logic -->
-    <script>
-        const DEFAULT_USERS = [
-            {
-                id: 'usr_default',
-                name: 'مصطفى ياسر',
-                pin: '1234',
-                cash: 0,
-                wallet: 0,
-                transactions: [],
-                products: [],
-                tasks: []
-            }
-        ];
-
-        let users = JSON.parse(localStorage.getItem('hh_users')) || DEFAULT_USERS;
-        let activeUserId = localStorage.getItem('hh_active_user') || users[0].id;
-        let currentUser = null;
-
-        document.addEventListener("DOMContentLoaded", () => {
-            setupPinInputs();
-            renderUserDropdown();
-            checkAuth();
-        });
-
-        function setupPinInputs() {
-            const inputs = document.querySelectorAll('.pin-input');
-            inputs.forEach((input, index) => {
-                input.addEventListener('input', (e) => {
-                    if (e.target.value.length === 1 && index < inputs.length - 1) {
-                        inputs[index + 1].focus();
-                    }
-                });
-            });
-        }
-
-        function renderUserDropdown() {
-            const select = document.getElementById('userSelect');
-            select.innerHTML = users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
-            select.value = activeUserId;
-        }
-
-        function onUserSelectChange() {
-            activeUserId = document.getElementById('userSelect').value;
-        }
-
-        function verifyPin() {
-            const pinEntered = Array.from(document.querySelectorAll('.pin-input')).map(i => i.value).join('');
-            const user = users.find(u => u.id === activeUserId);
-            
-            if (user && user.pin === pinEntered) {
-                currentUser = user;
-                localStorage.setItem('hh_active_user', currentUser.id);
-                document.getElementById('authOverlay').style.display = 'none';
-                clearPinInputs();
-                loadUserData();
-            } else {
-                alert('رمز PIN غير صحيح!');
-                clearPinInputs();
-            }
-        }
-
-        function clearPinInputs() {
-            document.querySelectorAll('.pin-input').forEach(i => i.value = '');
-        }
-
-        function lockApp() {
-            currentUser = null;
-            document.getElementById('authOverlay').style.display = 'flex';
-            clearPinInputs();
-        }
-
-        function checkAuth() {
-            document.getElementById('authOverlay').style.display = 'flex';
-        }
-
-        function loadUserData() {
-            if (!currentUser) return;
-
-            document.getElementById('headerUserName').innerText = currentUser.name;
-            document.getElementById('headerAvatar').innerText = currentUser.name.charAt(0);
-            document.getElementById('profileName').innerText = currentUser.name;
-
-            const totalBalance = (currentUser.cash || 0) + (currentUser.wallet || 0);
-            document.getElementById('homeTotalBalance').innerText = totalBalance.toLocaleString() + ' ج.م';
-            document.getElementById('accCashBalance').innerText = (currentUser.cash || 0).toLocaleString() + ' ج.م';
-            document.getElementById('accWalletBalance').innerText = (currentUser.wallet || 0).toLocaleString() + ' ج.م';
-
-            const incomeTotal = (currentUser.transactions || []).filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const expenseTotal = (currentUser.transactions || []).filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-
-            document.getElementById('homeMonthlyIncome').innerText = incomeTotal.toLocaleString() + ' ج.م';
-            document.getElementById('homeMonthlyExpense').innerText = expenseTotal.toLocaleString() + ' ج.م';
-
-            renderTransactions();
-            renderProducts();
-        }
-
-        function saveState() {
-            const index = users.findIndex(u => u.id === currentUser.id);
-            if (index !== -1) {
-                users[index] = currentUser;
-                localStorage.setItem('hh_users', JSON.stringify(users));
-            }
-            loadUserData();
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(`view-${tabId}`).classList.add('active');
-        }
-
-        /* --- Store Management Logic --- */
-        function saveProduct() {
-            const name = document.getElementById('prodName').value.trim();
-            const cost = parseFloat(document.getElementById('prodCost').value);
-            const price = parseFloat(document.getElementById('prodPrice').value);
-            const qty = parseInt(document.getElementById('prodQty').value);
-
-            if (!name || isNaN(cost) || isNaN(price) || isNaN(qty)) {
-                return alert('يرجى ملء كافة بيانات المنتج بطريقة صحيحة');
-            }
-
-            if (!currentUser.products) currentUser.products = [];
-
-            currentUser.products.unshift({
-                id: Date.now(),
-                name,
-                cost,
-                price,
-                qty,
-                soldQty: 0
-            });
-
-            saveState();
-            closeModal('modalProduct');
-            document.getElementById('prodName').value = '';
-            document.getElementById('prodCost').value = '';
-            document.getElementById('prodPrice').value = '';
-            document.getElementById('prodQty').value = '';
-        }
-
-        function sellProduct(id) {
-            const prod = (currentUser.products || []).find(p => p.id === id);
-            if (prod && prod.qty > 0) {
-                prod.qty -= 1;
-                prod.soldQty = (prod.soldQty || 0) + 1;
-                
-                // Calculate profit for single item
-                const profit = prod.price - prod.cost;
-
-                // Auto register transaction profit into cash
-                currentUser.cash = (currentUser.cash || 0) + prod.price;
-                currentUser.transactions.unshift({
-                    id: Date.now(),
-                    type: 'income',
-                    amount: prod.price,
-                    category: 'مبيعات المحل',
-                    note: `بيع: ${prod.name} (صافي ربح: ${profit} ج.م)`,
-                    date: new Date().toLocaleDateString('ar-EG')
-                });
-
-                saveState();
-            } else {
-                alert('المنتج نفد من المخزون!');
-            }
-        }
-
-        function renderProducts() {
-            const container = document.getElementById('productsList');
-            const products = currentUser.products || [];
-
-            let totalProfit = 0;
-            let inventoryVal = 0;
-
-            products.forEach(p => {
-                totalProfit += ((p.soldQty || 0) * (p.price - p.cost));
-                inventoryVal += (p.qty * p.cost);
-            });
-
-            document.getElementById('storeTotalProfit').innerText = totalProfit.toLocaleString() + ' ج.م';
-            document.getElementById('storeInventoryValue').innerText = inventoryVal.toLocaleString() + ' ج.م';
-            document.getElementById('storeTotalItems').innerText = products.length + ' منتج';
-
-            if (products.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>اضغط + لإضافة أول منتج في محلك</p></div>`;
-                return;
-            }
-
-            container.innerHTML = products.map(p => {
-                const profitPerUnit = p.price - p.cost;
-                const isOut = p.qty <= 0;
-
-                return `
-                    <div class="product-card">
-                        <div class="product-header">
-                            <h4>${p.name}</h4>
-                            <span class="stock-badge ${isOut ? 'stock-empty' : 'stock-available'}">
-                                ${isOut ? '🔴 نفذت الكمية' : `🟢 متاح: ${p.qty} قطعة`}
-                            </span>
-                        </div>
-                        <div class="product-metrics">
-                            <div class="metric-box">
-                                <p>سعر الشراء</p>
-                                <strong>${p.cost} ج.م</strong>
-                            </div>
-                            <div class="metric-box">
-                                <p>سعر البيع</p>
-                                <strong>${p.price} ج.م</strong>
-                            </div>
-                            <div class="metric-box">
-                                <p>الربح في القطعة</p>
-                                <strong style="color: var(--success);">+${profitPerUnit} ج.م</strong>
-                            </div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 11px; color: var(--text-muted);">إجمالي المباع: ${p.soldQty || 0} قطعة</span>
-                            <button class="btn btn-gold btn-sm" onclick="sellProduct(${p.id})" ${isOut ? 'disabled style="opacity:0.5"' : ''}>
-                                <i class="fa-solid fa-cart-shopping"></i> بيع قطعة واحدة
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        /* --- Income & Expenses --- */
-        function saveExpense() {
-            const amount = parseFloat(document.getElementById('expAmount').value);
-            const category = document.getElementById('expCategory').value;
-            const account = document.getElementById('expAccount').value;
-
-            if (!amount || amount <= 0) return alert('الرجاء إدخال مبلغ صحيح');
-
-            if (account === 'cash') currentUser.cash = (currentUser.cash || 0) - amount;
-            else currentUser.wallet = (currentUser.wallet || 0) - amount;
-
-            currentUser.transactions.unshift({
-                id: Date.now(),
-                type: 'expense',
-                amount,
-                category,
-                note: category,
-                date: new Date().toLocaleDateString('ar-EG')
-            });
-
-            saveState();
-            closeModal('modalExpense');
-            document.getElementById('expAmount').value = '';
-        }
-
-        function saveIncome() {
-            const amount = parseFloat(document.getElementById('incAmount').value);
-            const category = document.getElementById('incCategory').value || 'دخل آخر';
-
-            if (!amount || amount <= 0) return alert('الرجاء إدخال مبلغ صحيح');
-
-            currentUser.cash = (currentUser.cash || 0) + amount;
-            currentUser.transactions.unshift({
-                id: Date.now(),
-                type: 'income',
-                amount,
-                category,
-                note: category,
-                date: new Date().toLocaleDateString('ar-EG')
-            });
-
-            saveState();
-            closeModal('modalIncome');
-            document.getElementById('incAmount').value = '';
-        }
-
-        function renderTransactions() {
-            const recentContainer = document.getElementById('homeRecentTransactions');
-            const fullContainer = document.getElementById('fullTransactionsList');
-            const list = currentUser.transactions || [];
-
-            if (list.length === 0) {
-                recentContainer.innerHTML = `<div class="empty-state"><p>لا توجد معاملات بعد</p></div>`;
-                fullContainer.innerHTML = `<div class="empty-state"><p>لا توجد معاملات مسجلة</p></div>`;
-                return;
-            }
-
-            const html = list.map(t => `
-                <div class="list-item">
-                    <div class="item-left">
-                        <div class="item-icon"><i class="fa-solid ${t.type === 'income' ? 'fa-arrow-down' : 'fa-arrow-up'}"></i></div>
-                        <div class="item-details">
-                            <h4>${t.note}</h4>
-                            <p>${t.date} • ${t.category}</p>
-                        </div>
-                    </div>
-                    <div class="item-amount ${t.type === 'income' ? 'inc' : 'exp'}">
-                        ${t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString()} ج.م
-                    </div>
-                </div>
-            `).join('');
-
-            recentContainer.innerHTML = html;
-            fullContainer.innerHTML = html;
-        }
-
-        function showCreateUserModal() { openModal('modalCreateUser'); }
-
-        function createNewUser() {
-            const name = document.getElementById('newUserName').value.trim();
-            const pin = document.getElementById('newUserPin').value.trim();
-
-            if (!name || pin.length !== 4) return alert('يرجى إدخال البيانات بشكل صحيح');
-
-            const newUser = {
-                id: 'usr_' + Date.now(),
-                name,
-                pin,
-                cash: 0,
-                wallet: 0,
-                transactions: [],
-                products: [],
-                tasks: []
-            };
-
-            users.push(newUser);
-            localStorage.setItem('hh_users', JSON.stringify(users));
-            renderUserDropdown();
-            closeModal('modalCreateUser');
-            alert('تم إنشاء الحساب بنجاح!');
-        }
-
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    </script>
+    <!-- External Script Link -->
+    <script src="script.js"></script>
 </body>
-<script src="script.js"></script>    
-      </html>
+                    </html>
