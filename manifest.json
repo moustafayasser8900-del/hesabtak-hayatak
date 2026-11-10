@@ -1,6 +1,7 @@
 {
   "name": "حسابتك وحياتك",
   "short_name": "حسابتك",
+  "description": "تطبيق متكامل لإدارة الأموال، المحلات والمشروعات، وتنظيم الحياة اليومية",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0d0d0d",
