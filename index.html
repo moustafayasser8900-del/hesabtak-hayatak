@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابتك وحياتك | Hesabtak & Hayatak</title>
+    
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#0d0d0d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="حسابتك وحياتك">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/gold/180/wallet.png">
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-card: #1c1c1e;
+            --bg-input: #29292c;
+            --gold-primary: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #aa7c11;
+            --gold-gradient: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+            --text-main: #f5f5f7;
+            --text-muted: #a1a1a6;
+            --danger: #ff453a;
+            --success: #30d158;
+            --info: #0a84ff;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-secondary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            padding-bottom: 90px;
+        }
+
+        /* --- Lock Screen & Auth --- */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.96);
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 360px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .auth-logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--gold-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 32px;
+            color: #000;
+        }
+
+        .pin-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+            direction: ltr;
+        }
+
+        .pin-input {
+            width: 45px;
+            height: 55px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--gold-primary);
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .pin-input:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Header */
+        .app-header {
+            padding: 20px 20px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-profile-summary {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--gold-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 18px;
+            border: 2px solid var(--gold-light);
+        }
+
+        .user-greeting h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .user-greeting p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--gold-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            height: 70px;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            padding: 0 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 10px;
+            gap: 3px;
+            cursor: pointer;
+            transition: color 0.2s;
+            width: 18%;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item.active {
+            color: var(--gold-primary);
+        }
+
+        .fab-btn {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: var(--gold-gradient);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            border: 3px solid var(--bg-secondary);
+            cursor: pointer;
+        }
+
+        /* Views Container */
+        .content-area {
+            padding: 16px;
+            flex: 1;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards & Components */
+        .balance-card {
+            background: linear-gradient(145deg, #1f1f22, #141416);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .balance-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--gold-primary);
+            margin-bottom: 16px;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 14px;
+        }
+
+        .stat-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .stat-icon.inc { background: rgba(48, 209, 88, 0.15); color: var(--success); }
+        .stat-icon.exp { background: rgba(255, 69, 58, 0.15); color: var(--danger); }
+
+        .stat-info p { font-size: 11px; color: var(--text-muted); }
+        .stat-info h4 { font-size: 15px; font-weight: 700; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 12px;
+        }
+
+        .section-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header h3 i {
+            color: var(--gold-primary);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        /* Actions Grid */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-item {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius-md);
+            padding: 12px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-item i {
+            font-size: 20px;
+            color: var(--gold-primary);
+        }
+
+        .action-item span {
+            font-size: 10px;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        /* Transactions List */
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-primary);
+        }
+
+        .item-details h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .item-details p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .item-amount {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .item-amount.inc { color: var(--success); }
+        .item-amount.exp { color: var(--danger); }
+
+        /* Store & Product Items */
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stock-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .stock-available { background: rgba(48, 209, 88, 0.2); color: var(--success); }
+        .stock-empty { background: rgba(255, 69, 58, 0.2); color: var(--danger); }
+
+        .product-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            background: var(--bg-input);
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+
+        .metric-box { text-align: center; }
+        .metric-box p { color: var(--text-muted); font-size: 9px; }
+        .metric-box strong { font-size: 12px; }
+
+        /* Forms & Inputs */
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-input);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-gold { background: var(--gold-gradient); color: #000; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: var(--radius-sm); }
+
+        /* Modal Sheets */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1500;
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-sheet {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-secondary);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 24px;
+            border-top: 1px solid var(--border-color);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { font-size: 18px; color: var(--gold-primary); }
+
+        .empty-state { text-align: center; padding: 30px 10px; color: var(--text-muted); }
+        .empty-state i { font-size: 36px; color: var(--border-color); margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- LOCK OVERLAY -->
+        <div id="authOverlay" class="auth-overlay">
+            <div class="auth-card">
+                <div class="auth-logo">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h2 id="authTitle" style="margin-bottom: 6px; font-size: 20px;">حسابتك وحياتك</h2>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">أدخل رمز PIN للدخول إلى حسابك</p>
+
+                <div class="form-group" style="text-align: right;">
+                    <label>اختر الحساب:</label>
+                    <select id="userSelect" class="form-control" onchange="onUserSelectChange()"></select>
+                </div>
+
+                <div class="pin-inputs">
+                    <input type="password" maxlength="1" class="pin-input" id="pin1" autofocus>
+                    <input type="password" maxlength="1" class="pin-input" id="pin2">
+                    <input type="password" maxlength="1" class="pin-input" id="pin3">
+                    <input type="password" maxlength="1" class="pin-input" id="pin4">
+                </div>
+
+                <button class="btn btn-gold" onclick="verifyPin()" style="margin-top: 10px;">
+                    <i class="fa-solid fa-lock-open"></i> فتح الحساب
+                </button>
+
+                <p onclick="showCreateUserModal()" style="font-size: 12px; color: var(--gold-primary); margin-top: 16px; cursor: pointer;">
+                    + إنشاء حساب جديد
+                </p>
+            </div>
+        </div>
+
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="user-profile-summary">
+                <div class="user-avatar" id="headerAvatar">م</div>
+                <div class="user-greeting">
+                    <h3 id="headerUserName">مصطفى ياسر</h3>
+                    <p id="headerDate">المحل والمالية والشخصية</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="lockApp()"><i class="fa-solid fa-lock"></i></button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="content-area">
+
+            <!-- 1. HOME VIEW -->
+            <section id="view-home" class="view-section active">
+                <div class="balance-card">
+                    <p class="balance-title">إجمالي الرصيد المتاح</p>
+                    <h2 class="balance-amount" id="homeTotalBalance">0.00 ج.م</h2>
+                    <div class="balance-grid">
+                        <div class="stat-box">
+                            <div class="stat-icon inc"><i class="fa-solid fa-arrow-down"></i></div>
+                            <div class="stat-info">
+                                <p>إجمالي الدخل</p>
+                                <h4 id="homeMonthlyIncome">0 ج.م</h4>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-icon exp"><i class="fa-solid fa-arrow-up"></i></div>
+                            <div class="stat-info">
+                                <p>المصروفات</p>
+                                <h4 id="homeMonthlyExpense">0 ج.م</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-grid">
+                    <div class="action-item" onclick="openModal('modalIncome')">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>إضافة دخل</span>
+                    </div>
+                    <div class="action-item" onclick="openModal('modalExpense')">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>تسجيل مصروف</span>
+                    </div>
+                    <div class="action-item" onclick="switchTab('store')">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>المحل والمخزون</span>
+                    </div>
+                    <div class="action-item" onclick="openModal('modalProduct')">
+                        <i class="fa-solid fa-cart-plus"></i>
+                        <span>منتج جديد</span>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> أحدث المعاملات</h3>
+                </div>
+                <div class="card" id="homeRecentTransactions">
+                    <div class="empty-state"><p>لا توجد معاملات بعد</p></div>
+                </div>
+            </section>
+
+            <!-- 2. STORE & INVENTORY VIEW (جديد لأصحاب المحلات) -->
+            <section id="view-store" class="view-section">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-store"></i> إدار المحل والبضاعة والربح</h3>
+                    <button class="icon-btn" onclick="openModal('modalProduct')"><i class="fa-solid fa-plus"></i></button>
+                </div>
+
+                <!-- Store Metrics Card -->
+                <div class="balance-card" style="background: linear-gradient(145deg, #191c24, #12141a);">
+                    <p class="balance-title">إجمالي أرباح المبيعات المحققة</p>
+                    <h2 class="balance-amount" style="color: var(--success);" id="storeTotalProfit">0.00 ج.م</h2>
+                    <div class="balance-grid">
+                        <div class="stat-box">
+                            <div class="stat-info">
+                                <p>قيمة البضاعة بالحساب</p>
+                                <h4 id="storeInventoryValue">0 ج.م</h4>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-info">
+                                <p>أنواع المنتجات</p>
+                                <h4 id="storeTotalItems">0 منتج</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Lists -->
+                <div class="section-header">
+                    <h3>قائمة البضاعة والمنتجات</h3>
+                </div>
+                <div id="productsList">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-box-open"></i>
+                        <p>اضغط + لإضافة أول منتج في محلك</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. ACCOUNTS VIEW -->
+            <section id="view-accounts" class="view-section">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-building-columns"></i> الحسابات والمعاملات</h3>
+                </div>
+                <div class="card">
+                    <div class="list-item">
+                        <p>الكاش في الجيب / الخزينة</p>
+                        <strong id="accCashBalance">0 ج.م</strong>
+                    </div>
+                    <div class="list-item">
+                        <p>المحفظة الإلكترونية / البنك</p>
+                        <strong id="accWalletBalance">0 ج.م</strong>
+                    </div>
+                </div>
+                <div class="card" id="fullTransactionsList">
+                    <div class="empty-state"><p>لا توجد معاملات مسجلة</p></div>
+                </div>
+            </section>
+
+            <!-- 4. LIFE ORGANIZER VIEW -->
+            <section id="view-life" class="view-section">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-calendar-check"></i> تنظيم المهام</h3>
+                    <button class="icon-btn" onclick="openModal('modalTask')"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="card" id="lifeTasksList">
+                    <div class="empty-state"><p>لا توجد مهام مضافة</p></div>
+                </div>
+            </section>
+
+            <!-- 5. PROFILE & SETTINGS VIEW -->
+            <section id="view-profile" class="view-section">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-user-gear"></i> إعدادات الحساب</h3>
+                </div>
+                <div class="card" style="text-align: center; padding: 20px;">
+                    <h3 id="profileName">مصطفى ياسر</h3>
+                    <p style="font-size: 12px; color: var(--gold-primary);">تطبيق مجاني 100%</p>
+                </div>
+                <div class="card">
+                    <div class="list-item" onclick="lockApp()" style="cursor: pointer;">
+                        <span style="color: var(--danger);"><i class="fa-solid fa-arrow-right-from-bracket"></i> قفل التطبيق الخروج</span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('home')">
+                <i class="fa-solid fa-house"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('store')">
+                <i class="fa-solid fa-store"></i>
+                <span>المحل</span>
+            </div>
+
+            <div class="fab-btn" onclick="openModal('modalProduct')">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+
+            <div class="nav-item" style="margin-right: 12px;" onclick="switchTab('accounts')">
+                <i class="fa-solid fa-wallet"></i>
+                <span>حساباتي</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('life')">
+                <i class="fa-solid fa-list-check"></i>
+                <span>مهامي</span>
+            </div>
+        </nav>
+
+        <!-- MODAL: ADD PRODUCT (أصحاب المحلات) -->
+        <div id="modalProduct" class="modal-overlay">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-cart-plus"></i> إضافة منتج جديد للمحل</h3>
+                    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal('modalProduct')"></i>
+                </div>
+                <div class="form-group">
+                    <label>اسم المنتج / السلعة</label>
+                    <input type="text" id="prodName" class="form-control" placeholder="مثال: قميص رجالي، موبايل...">
+                </div>
+                <div class="form-group">
+                    <label>سعر الجملة / الشراء (التكلفة عليك)</label>
+                    <input type="number" id="prodCost" class="form-control" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>سعر البيع للزبون</label>
+                    <input type="number" id="prodPrice" class="form-control" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>الكمية المتاحة (عدد القطع)</label>
+                    <input type="number" id="prodQty" class="form-control" placeholder="10">
+                </div>
+                <button class="btn btn-gold" onclick="saveProduct()">حفظ المنتج في المحل</button>
+            </div>
+        </div>
+
+        <!-- MODAL: ADD EXPENSE -->
+        <div id="modalExpense" class="modal-overlay">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-receipt"></i> تسجيل مصروف</h3>
+                    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal('modalExpense')"></i>
+                </div>
+                <div class="form-group">
+                    <label>المبلغ (ج.م)</label>
+                    <input type="number" id="expAmount" class="form-control" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>التصنيف</label>
+                    <select id="expCategory" class="form-control">
+                        <option value="بضاعة ومحل">🏪 إيجار أو مصروفات محل</option>
+                        <option value="طعام وشراء">🍔 طعام</option>
+                        <option value="مواصلات">🚕 مواصلات</option>
+                        <option value="فواتير واشتراكات">🧾 فواتير</option>
+                        <option value="مصروفات أخرى">📦 أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>طريقة الدفع</label>
+                    <select id="expAccount" class="form-control">
+                        <option value="cash">نقداً (كاش)</option>
+                        <option value="wallet">المحفظة الإلكترونية</option>
+                    </select>
+                </div>
+                <button class="btn btn-gold" onclick="saveExpense()">تسجيل المصروف</button>
+            </div>
+        </div>
+
+        <!-- MODAL: ADD INCOME -->
+        <div id="modalIncome" class="modal-overlay">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <h3>إضافة دخل</h3>
+                    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal('modalIncome')"></i>
+                </div>
+                <div class="form-group">
+                    <label>المبلغ (ج.م)</label>
+                    <input type="number" id="incAmount" class="form-control" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>المصدر</label>
+                    <input type="text" id="incCategory" class="form-control" placeholder="مرتب، أرباح محل...">
+                </div>
+                <button class="btn btn-gold" onclick="saveIncome()">إضافة</button>
+            </div>
+        </div>
+
+        <!-- MODAL: CREATE USER -->
+        <div id="modalCreateUser" class="modal-overlay">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <h3>إنشاء حساب جديد</h3>
+                    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal('modalCreateUser')"></i>
+                </div>
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="newUserName" class="form-control" placeholder="اسمك...">
+                </div>
+                <div class="form-group">
+                    <label>رمز PIN مكون من 4 أرقام</label>
+                    <input type="password" id="newUserPin" maxlength="4" class="form-control" placeholder="****">
+                </div>
+                <button class="btn btn-gold" onclick="createNewUser()">إنشاء الحساب</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT logic -->
+    <script>
+        const DEFAULT_USERS = [
+            {
+                id: 'usr_default',
+                name: 'مصطفى ياسر',
+                pin: '1234',
+                cash: 0,
+                wallet: 0,
+                transactions: [],
+                products: [],
+                tasks: []
+            }
+        ];
+
+        let users = JSON.parse(localStorage.getItem('hh_users')) || DEFAULT_USERS;
+        let activeUserId = localStorage.getItem('hh_active_user') || users[0].id;
+        let currentUser = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setupPinInputs();
+            renderUserDropdown();
+            checkAuth();
+        });
+
+        function setupPinInputs() {
+            const inputs = document.querySelectorAll('.pin-input');
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+            });
+        }
+
+        function renderUserDropdown() {
+            const select = document.getElementById('userSelect');
+            select.innerHTML = users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            select.value = activeUserId;
+        }
+
+        function onUserSelectChange() {
+            activeUserId = document.getElementById('userSelect').value;
+        }
+
+        function verifyPin() {
+            const pinEntered = Array.from(document.querySelectorAll('.pin-input')).map(i => i.value).join('');
+            const user = users.find(u => u.id === activeUserId);
+            
+            if (user && user.pin === pinEntered) {
+                currentUser = user;
+                localStorage.setItem('hh_active_user', currentUser.id);
+                document.getElementById('authOverlay').style.display = 'none';
+                clearPinInputs();
+                loadUserData();
+            } else {
+                alert('رمز PIN غير صحيح!');
+                clearPinInputs();
+            }
+        }
+
+        function clearPinInputs() {
+            document.querySelectorAll('.pin-input').forEach(i => i.value = '');
+        }
+
+        function lockApp() {
+            currentUser = null;
+            document.getElementById('authOverlay').style.display = 'flex';
+            clearPinInputs();
+        }
+
+        function checkAuth() {
+            document.getElementById('authOverlay').style.display = 'flex';
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+
+            document.getElementById('headerUserName').innerText = currentUser.name;
+            document.getElementById('headerAvatar').innerText = currentUser.name.charAt(0);
+            document.getElementById('profileName').innerText = currentUser.name;
+
+            const totalBalance = (currentUser.cash || 0) + (currentUser.wallet || 0);
+            document.getElementById('homeTotalBalance').innerText = totalBalance.toLocaleString() + ' ج.م';
+            document.getElementById('accCashBalance').innerText = (currentUser.cash || 0).toLocaleString() + ' ج.م';
+            document.getElementById('accWalletBalance').innerText = (currentUser.wallet || 0).toLocaleString() + ' ج.م';
+
+            const incomeTotal = (currentUser.transactions || []).filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const expenseTotal = (currentUser.transactions || []).filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+            document.getElementById('homeMonthlyIncome').innerText = incomeTotal.toLocaleString() + ' ج.م';
+            document.getElementById('homeMonthlyExpense').innerText = expenseTotal.toLocaleString() + ' ج.م';
+
+            renderTransactions();
+            renderProducts();
+        }
+
+        function saveState() {
+            const index = users.findIndex(u => u.id === currentUser.id);
+            if (index !== -1) {
+                users[index] = currentUser;
+                localStorage.setItem('hh_users', JSON.stringify(users));
+            }
+            loadUserData();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`view-${tabId}`).classList.add('active');
+        }
+
+        /* --- Store Management Logic --- */
+        function saveProduct() {
+            const name = document.getElementById('prodName').value.trim();
+            const cost = parseFloat(document.getElementById('prodCost').value);
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const qty = parseInt(document.getElementById('prodQty').value);
+
+            if (!name || isNaN(cost) || isNaN(price) || isNaN(qty)) {
+                return alert('يرجى ملء كافة بيانات المنتج بطريقة صحيحة');
+            }
+
+            if (!currentUser.products) currentUser.products = [];
+
+            currentUser.products.unshift({
+                id: Date.now(),
+                name,
+                cost,
+                price,
+                qty,
+                soldQty: 0
+            });
+
+            saveState();
+            closeModal('modalProduct');
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodCost').value = '';
+            document.getElementById('prodPrice').value = '';
+            document.getElementById('prodQty').value = '';
+        }
+
+        function sellProduct(id) {
+            const prod = (currentUser.products || []).find(p => p.id === id);
+            if (prod && prod.qty > 0) {
+                prod.qty -= 1;
+                prod.soldQty = (prod.soldQty || 0) + 1;
+                
+                // Calculate profit for single item
+                const profit = prod.price - prod.cost;
+
+                // Auto register transaction profit into cash
+                currentUser.cash = (currentUser.cash || 0) + prod.price;
+                currentUser.transactions.unshift({
+                    id: Date.now(),
+                    type: 'income',
+                    amount: prod.price,
+                    category: 'مبيعات المحل',
+                    note: `بيع: ${prod.name} (صافي ربح: ${profit} ج.م)`,
+                    date: new Date().toLocaleDateString('ar-EG')
+                });
+
+                saveState();
+            } else {
+                alert('المنتج نفد من المخزون!');
+            }
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('productsList');
+            const products = currentUser.products || [];
+
+            let totalProfit = 0;
+            let inventoryVal = 0;
+
+            products.forEach(p => {
+                totalProfit += ((p.soldQty || 0) * (p.price - p.cost));
+                inventoryVal += (p.qty * p.cost);
+            });
+
+            document.getElementById('storeTotalProfit').innerText = totalProfit.toLocaleString() + ' ج.م';
+            document.getElementById('storeInventoryValue').innerText = inventoryVal.toLocaleString() + ' ج.م';
+            document.getElementById('storeTotalItems').innerText = products.length + ' منتج';
+
+            if (products.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>اضغط + لإضافة أول منتج في محلك</p></div>`;
+                return;
+            }
+
+            container.innerHTML = products.map(p => {
+                const profitPerUnit = p.price - p.cost;
+                const isOut = p.qty <= 0;
+
+                return `
+                    <div class="product-card">
+                        <div class="product-header">
+                            <h4>${p.name}</h4>
+                            <span class="stock-badge ${isOut ? 'stock-empty' : 'stock-available'}">
+                                ${isOut ? '🔴 نفذت الكمية' : `🟢 متاح: ${p.qty} قطعة`}
+                            </span>
+                        </div>
+                        <div class="product-metrics">
+                            <div class="metric-box">
+                                <p>سعر الشراء</p>
+                                <strong>${p.cost} ج.م</strong>
+                            </div>
+                            <div class="metric-box">
+                                <p>سعر البيع</p>
+                                <strong>${p.price} ج.م</strong>
+                            </div>
+                            <div class="metric-box">
+                                <p>الربح في القطعة</p>
+                                <strong style="color: var(--success);">+${profitPerUnit} ج.م</strong>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 11px; color: var(--text-muted);">إجمالي المباع: ${p.soldQty || 0} قطعة</span>
+                            <button class="btn btn-gold btn-sm" onclick="sellProduct(${p.id})" ${isOut ? 'disabled style="opacity:0.5"' : ''}>
+                                <i class="fa-solid fa-cart-shopping"></i> بيع قطعة واحدة
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* --- Income & Expenses --- */
+        function saveExpense() {
+            const amount = parseFloat(document.getElementById('expAmount').value);
+            const category = document.getElementById('expCategory').value;
+            const account = document.getElementById('expAccount').value;
+
+            if (!amount || amount <= 0) return alert('الرجاء إدخال مبلغ صحيح');
+
+            if (account === 'cash') currentUser.cash = (currentUser.cash || 0) - amount;
+            else currentUser.wallet = (currentUser.wallet || 0) - amount;
+
+            currentUser.transactions.unshift({
+                id: Date.now(),
+                type: 'expense',
+                amount,
+                category,
+                note: category,
+                date: new Date().toLocaleDateString('ar-EG')
+            });
+
+            saveState();
+            closeModal('modalExpense');
+            document.getElementById('expAmount').value = '';
+        }
+
+        function saveIncome() {
+            const amount = parseFloat(document.getElementById('incAmount').value);
+            const category = document.getElementById('incCategory').value || 'دخل آخر';
+
+            if (!amount || amount <= 0) return alert('الرجاء إدخال مبلغ صحيح');
+
+            currentUser.cash = (currentUser.cash || 0) + amount;
+            currentUser.transactions.unshift({
+                id: Date.now(),
+                type: 'income',
+                amount,
+                category,
+                note: category,
+                date: new Date().toLocaleDateString('ar-EG')
+            });
+
+            saveState();
+            closeModal('modalIncome');
+            document.getElementById('incAmount').value = '';
+        }
+
+        function renderTransactions() {
+            const recentContainer = document.getElementById('homeRecentTransactions');
+            const fullContainer = document.getElementById('fullTransactionsList');
+            const list = currentUser.transactions || [];
+
+            if (list.length === 0) {
+                recentContainer.innerHTML = `<div class="empty-state"><p>لا توجد معاملات بعد</p></div>`;
+                fullContainer.innerHTML = `<div class="empty-state"><p>لا توجد معاملات مسجلة</p></div>`;
+                return;
+            }
+
+            const html = list.map(t => `
+                <div class="list-item">
+                    <div class="item-left">
+                        <div class="item-icon"><i class="fa-solid ${t.type === 'income' ? 'fa-arrow-down' : 'fa-arrow-up'}"></i></div>
+                        <div class="item-details">
+                            <h4>${t.note}</h4>
+                            <p>${t.date} • ${t.category}</p>
+                        </div>
+                    </div>
+                    <div class="item-amount ${t.type === 'income' ? 'inc' : 'exp'}">
+                        ${t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString()} ج.م
+                    </div>
+                </div>
+            `).join('');
+
+            recentContainer.innerHTML = html;
+            fullContainer.innerHTML = html;
+        }
+
+        function showCreateUserModal() { openModal('modalCreateUser'); }
+
+        function createNewUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const pin = document.getElementById('newUserPin').value.trim();
+
+            if (!name || pin.length !== 4) return alert('يرجى إدخال البيانات بشكل صحيح');
+
+            const newUser = {
+                id: 'usr_' + Date.now(),
+                name,
+                pin,
+                cash: 0,
+                wallet: 0,
+                transactions: [],
+                products: [],
+                tasks: []
+            };
+
+            users.push(newUser);
+            localStorage.setItem('hh_users', JSON.stringify(users));
+            renderUserDropdown();
+            closeModal('modalCreateUser');
+            alert('تم إنشاء الحساب بنجاح!');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    </script>
+</body>
+      </html>
